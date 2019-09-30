@@ -5,7 +5,7 @@
               heading="Trusted Customers"
             >
               <v-btn
-                  to="/trusted/customer/list"
+                  to="/trusted/customers/list"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>

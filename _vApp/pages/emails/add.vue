@@ -2,7 +2,7 @@
     <div>
         <v-form id="EmailsForm" ref="EmailsForm" @submit.prevent="emailsAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              heading="Email"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    :to="actions.slug"
+                    to="/email/list"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>

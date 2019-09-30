@@ -20,7 +20,7 @@
                <tbody>
                    <tr class="filters my-5">
                        <td
-                           v-for="(key, i) in keys"
+                           v-for="(key, i) in filterKeys"
                            :key="i"
                            v-if="key.filter"
                        >
@@ -28,8 +28,10 @@
                                hide-details
                                width="50px"
                                solo
+                               v-model="key.search"
                                :placeholder="key.text"
                                autocomplete="nope"
+                               @input="filter(i, key.search)"
                            >
                            </v-text-field>
                        </td>
@@ -61,7 +63,7 @@
                                </v-btn>
                                </template>
                                <v-list>
-                                   <v-list-item :to="slug + '/' + d['id']">
+                                   <v-list-item :to="slug + '/edit/' + d['id']">
                                        <v-list-item-title>
                                            <v-icon left>mdi-pencil-outline</v-icon>
                                            Edit
@@ -97,6 +99,7 @@
 </template>
 
 <script>
+import debounce from 'debounce'
 
 export default {
     props: {
@@ -116,7 +119,8 @@ export default {
     data () {
         return {
             obj: null,
-            keys: null
+            keys: null,
+            filterKeys: null
         }
     },
     created () {
@@ -125,29 +129,68 @@ export default {
             return;
         }
 
-        var page = this.$route.query.page;
+        var url = this.endpoint + this.queryString(this.$route.query);
 
-        if (!page) {
-            var page = 1;
-        }
-
-        var url = this.endpoint + '?page=' + page;
-
-        return this.$axiosx.get(url)
+        this.$axiosx.get(url)
         .then((res) => {
-            this.obj = res.data.obj;
             this.keys = res.data.keys;
+            this.obj = res.data.obj;
         });
 
     },
     methods: {
+        assignFilters () {
+            if (this.keys) {
+
+                var keys = this.keys;
+                for (var key in keys) {
+                    if (this.$route.query[key]) {
+                        keys[key]['search'] = this.$route.query[key];
+                    }
+                }
+
+                this.filterKeys = keys;
+            }
+        },
+        pushQuery (obj) {
+            var queryString = this.queryString(obj);
+            history.pushState({}, '', queryString);
+        },
+        queryString (obj) {
+            var array = Object.keys(obj);
+
+            var arrayString = array.map(function (key) {
+                if (obj[key]) {
+                    return key + '=' + obj[key];
+                }
+            });
+
+            var finalString = arrayString.join('&');
+
+            if (finalString) {
+                return '?' + finalString;
+            }
+
+            return '?page=1';
+        },
+        filterColumns: debounce(
+            async function (key, val) {
+                var k = {};
+                k[key] = val;
+
+                var obj = await Object.assign(this.$route.query, k);
+                this.pushQuery(obj);
+                this.getList();
+
+            }, 500
+        ),
         getList: function(page = 1) {
 
             if (!this.endpoint) {
                 return;
             }
 
-            var url = this.endpoint + '?page=' + page;
+            var url = this.endpoint + this.queryString(this.$route.query);
 
             this.$axiosx.get(url)
             .then((res) => {
@@ -158,11 +201,9 @@ export default {
         },
         triggerPaginate (paginate) {
 
-            this.$router.push({
-                query: {
-                    page: paginate
-                }
-            });
+            var obj = Object.assign(this.$route.query, { page: paginate });
+
+            this.pushQuery(obj);
 
             this.getList(paginate);
         },
@@ -206,6 +247,14 @@ export default {
                     this.$store.commit('snackbar', res.data);
                 }
             });
+        },
+        filter (key, val) {
+            this.filterColumns(key, val);
+        },
+    },
+    watch: {
+        keys (list) {
+            this.assignFilters();
         }
     }
 }
