@@ -2,7 +2,7 @@
     <div>
         <v-form id="EquipmentOptionsAdd" ref="EquipmentOptionsAdd" @submit.prevent="eoAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
             <v-btn
                 min-width="130px"
@@ -15,7 +15,7 @@
                 Save
             </v-btn>
               <v-btn
-                  :to="actions.slug"
+                  to="/equipment/options"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -55,13 +55,13 @@
                     autocomplete="nope"
                   ></v-text-field>
 
-                  <v-textarea
-                    autocomplete="nope"
-                    outlined
-                    name="description"
-                    label="Description"
-                    v-model="eo.description"
-                  ></v-textarea>
+                  <Textarea
+                      autocomplete="nope"
+                      outlined
+                      name="description"
+                      label="Description"
+                      :value="eo.description"
+                  ></Textarea>
 
                   <v-text-field
                     v-model="eo.position"
@@ -73,7 +73,8 @@
                 </v-card>
               </v-flex>
               <div class="col xs12 sm3 md3 xl3">
-                <v-expansion-panels accordion>
+                <v-expansion-panels accordion
+                v-model="panel">
                   <v-expansion-panel class="_collapse">
                     <v-expansion-panel-header>Input Type</v-expansion-panel-header>
                     <v-expansion-panel-content :eager="true">
@@ -82,7 +83,7 @@
                           :label="item.name"
                           :value="item.id"
                           name="input_type"
-                          v-for="item in inputType"
+                          v-for="item in eo.inputType"
                           :key="item.id"
                         ></v-radio>
                       </v-radio-group>
@@ -97,7 +98,7 @@
                           :label="item.name"
                           :value="item.id"
                           name="filterable"
-                          v-for="item in options"
+                          v-for="item in eo.options"
                           :key="item.id"
                         ></v-radio>
                       </v-radio-group>
@@ -112,7 +113,7 @@
                           :label="item.name"
                           :value="item.id"
                           name="usage_in_combinations"
-                          v-for="item in options"
+                          v-for="item in eo.options"
                           :key="item.id"
                         ></v-radio>
                       </v-radio-group>
@@ -127,7 +128,7 @@
                           :label="item.name"
                           :value="item.id"
                           name="usage_in_comparison"
-                          v-for="item in options"
+                          v-for="item in eo.options"
                           :key="item.id"
                         ></v-radio>
                       </v-radio-group>
@@ -142,7 +143,7 @@
                           :label="item.name"
                           :value="item.id"
                           name="is_global"
-                          v-for="item in options"
+                          v-for="item in eo.options"
                           :key="item.id"
                         ></v-radio>
                       </v-radio-group>
@@ -157,7 +158,7 @@
                           :label="item.name"
                           :value="item.id"
                           name="is_required"
-                          v-for="item in options"
+                          v-for="item in eo.options"
                           :key="item.id"
                         ></v-radio>
                       </v-radio-group>
@@ -181,9 +182,6 @@ export default {
     return this.$axiosx.get(url)
     .then((res) => {
       this.eo = res.data.eo;
-      this.inputType = res.data.input_type;
-      this.options = res.data.options;
-      this.actions = res.data.actions;
 
       if (this.eo.usage_in_combinations) {
         this.eo.usage_in_combinations = '1';
@@ -228,6 +226,7 @@ export default {
       eo: [],
       actions: [],
       options: [],
+      panel: 0,
       validateRules: [
         v => !!v || 'This field is required'
       ],
@@ -242,7 +241,21 @@ export default {
     }
   },
   methods: {
+      getHeading() {
+          if (this.eo && this.eo.name) {
+              return 'Option: ' + this.eo.name;
+          }
+          return 'Add Option';
+      },
     eoAdd () {
+        if (this.$refs.EquipmentOptionsAdd.validate() == false) {
+          this.$store.commit('snackbar', {
+            status: 'error',
+            text: 'Please supply mandatory fields.'
+          });
+          return true;
+        }
+
       if (this.$refs.EquipmentOptionsAdd.validate() == false) {
         this.$store.commit('snackbar', this.error);
         return true;

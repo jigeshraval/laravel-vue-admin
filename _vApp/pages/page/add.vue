@@ -2,8 +2,18 @@
     <div>
         <v-form id="pageAdd" ref="pageAdd" @submit.prevent="pageAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
+                <v-switch
+                    hide-details
+                    class="mr-8"
+                  v-model="page.status"
+                  inset
+                  name="status"
+                  label="Status"
+                  color="success"
+                  :value="page.status"
+                ></v-switch>
               <v-btn
                   min-width="130px"
                   color="success"
@@ -15,7 +25,7 @@
                   Save
               </v-btn>
               <v-btn
-                  :to="actions.slug"
+                  to="/pages"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -30,7 +40,7 @@
                  >
                  <v-tab>Information</v-tab>
                  <v-tab>SEO</v-tab>
-                 <v-tab-item class="pa-5">
+                 <v-tab-item class="pa-5" :eager="true">
                    <v-text-field
                      v-model="page.name"
                      label="Name*"
@@ -58,26 +68,17 @@
                      autocomplete="nope"
                    ></v-text-field>
 
-                   <v-textarea
-                     auto-grow
-                     outlined
-                     name="content"
-                     label="Content"
-                     v-model="page.content"
-                   ></v-textarea>
-
-                  <v-switch
-                    v-model="page.status"
-                    inset
-                    name="status"
-                    label="Status"
-                    color="success"
-                    :value="page.status"
-                  ></v-switch>
+                   <Textarea
+                       autocomplete="nope"
+                       outlined
+                       name="content"
+                       label="Content"
+                       :value="page.content"
+                   ></Textarea>
 
                  </v-tab-item>
 
-              <v-tab-item class="pa-5">
+              <v-tab-item class="pa-5" :eager="true">
                 <SEO
                   :seo="page"
                 >
@@ -98,13 +99,11 @@
       return this.$axiosx.get(url)
       .then((res) => {
         this.page = res.data.page;
-        this.actions = res.data.actions;
       });
     },
     data () {
       return {
         page: [],
-        actions: [],
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -114,8 +113,36 @@
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+        getData () {
+          if (this.$route.params && this.$route.params.id) {
+                var url = '/page/edit/' + this.$route.params.id;
+                return this.$axiosx.get(url)
+                .then((res) => {
+                    this.page = res.data.page;
+                });
+            }
+        },
+        getHeading () {
+            if (this.page && this.page.name) {
+                  return 'Page: ' + this.page.name;
+            }
+
+            return 'Add Page';
+        },
       pageAdd () {
+          if (this.$refs.pageAdd.validate() == false) {
+              this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+              });
+              return true;
+          }
         var fd = new FormData(this.$refs.pageAdd.$el);
         this.dialog = true;
         var url = '/page/add';
@@ -132,17 +159,14 @@
               path: res.data.text,
               query: { added: 'true' }
             });
-            this.addedManufacturer();
+            this.added();
           }
           if (res.data.status == 'success') {
               this.$store.commit('snackbar', res.data);
           }
         });
       },
-      saveManufacturer () {
-        this.$refs.pageAdd.submit();
-      },
-      addedManufacturer() {
+      added() {
         if (this.$router.history.current.query.added == 'true') {
           this.$store.commit('snackbar', {
             status: 'success',

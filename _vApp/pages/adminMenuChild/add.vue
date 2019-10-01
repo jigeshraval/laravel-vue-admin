@@ -115,6 +115,13 @@ import Vue from 'vue'
     },
     methods: {
       menuAdd () {
+          if (this.$refs.adminMenuForm.validate() == false) {
+              this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+              });
+              return true;
+          }
         var fd = new FormData(this.$refs.adminMenuForm.$el);
         this.dialog = true;
         var url = '/admin/menu/child/add';

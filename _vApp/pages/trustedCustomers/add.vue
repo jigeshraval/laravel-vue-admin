@@ -4,8 +4,29 @@
             <Header
               heading="Trusted Customers"
             >
+            <v-switch
+                hide-details
+                class="mr-8"
+                v-model="tc.status"
+                inset
+                color="success"
+                :value="tc.status"
+                label="Status"
+                name="status"
+            ></v-switch>
+            <v-btn
+                min-width="130px"
+                color="success"
+                class="mr-5"
+                type="submit"
+                :loading="$store.state.loading"
+            >
+                <v-icon left>mdi-content-save-outline</v-icon>
+                Save
+            </v-btn>
+
               <v-btn
-                  to="/trusted/customers/list"
+                  to="/trusted/customers"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -13,45 +34,49 @@
               </v-btn>
             </Header>
             <v-layout row wrap>
-              <v-card class="pa-5 full">
-                <v-text-field
-                  v-model="tc.name"
-                  label="Title*"
-                  name="name"
-                  required
-                  :rules="validateRules"
-                  autocomplete="nope"
-                ></v-text-field>
+                <v-flex class="col sm12 xs12 md9 xl9">
+                    <v-card class="pa-5 full">
+                        <v-text-field
+                          v-model="tc.name"
+                          label="Title*"
+                          name="name"
+                          required
+                          :rules="validateRules"
+                          autocomplete="nope"
+                        ></v-text-field>
 
-                <v-textarea
-                  label="Description"
-                  auto-grow
-                  name="about"
-                  outlined
-                  v-model="tc.about"
-                ></v-textarea>
-                <div id="_bottomAction">
-                    <div>
-                      <v-switch
-                        v-model="tc.status"
-                        inset
-                        color="success"
-                        :value="tc.status"
-                        label="Status"
-                        name="status"
-                      ></v-switch>
-                    </div>
-                    <v-btn
-                        large
-                        type="submit"
-                        color="info"
-                        :loading="$store.state.loading"
+                        <Textarea
+                            autocomplete="nope"
+                            outlined
+                            name="about"
+                            label="Description"
+                            :value="tc.about"
+                        ></Textarea>
+
+                    </v-card>
+                </v-flex>
+                <v-flex class="col sm12 xs12 md3 xl3">
+                  <div justify="center" class="full">
+                    <v-expansion-panels
+                    v-model="panel"
+                    accordion
                     >
-                        <v-icon>mdi-content-save-outline</v-icon>
-                        Save
-                    </v-btn>
-                </div>
-              </v-card>
+                      <v-expansion-panel class="_collapse">
+                        <v-expansion-panel-header>Logo</v-expansion-panel-header>
+                          <v-expansion-panel-content :eager="true">
+                              <File
+                                  block
+                                  cls="_block"
+                                  :value="tc.logo"
+                                  text="Choose Image"
+                                  name="id_logo"
+                                  :multiple="false"
+                              ></File>
+                          </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+                  </div>
+                </v-flex>
             </v-layout>
         </v-form>
     </div>
@@ -79,6 +104,7 @@ export default {
       tc: {
         status: false
       },
+      panel: 0,
       validateRules: [
         v => !!v || 'This field is required'
       ],
@@ -88,8 +114,36 @@ export default {
       ]
     }
   },
+  watch : {
+    '$route.query.added' : function (val) {
+        this.getData();
+    }
+  },
   methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/block/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.block = res.data.block;
+              });
+          }
+      },
+      getHeading() {
+          if (this.tc && this.tc.name) {
+              return 'Trusted Customer: ' + this.tc.name;
+          }
+
+          return 'Add Trusted Customer';
+      },
     tcAdd () {
+        if (this.$refs.TrustedCustomerAdd.validate() == false) {
+            this.$store.commit('snackbar', {
+              status: 'error',
+              text: 'Please supply mandatory fields.'
+            });
+            return true;
+        }
       var fd = new FormData(this.$refs.TrustedCustomerAdd.$el);
       this.dialog = true;
       var url = '/trusted/customers/add';

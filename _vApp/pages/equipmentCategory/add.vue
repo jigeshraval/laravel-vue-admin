@@ -2,7 +2,7 @@
     <div>
         <v-form id="equipmentCategoryAdd" ref="equipmentCategoryAdd" @submit.prevent="ecAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    :to="actions.slug"
+                    to="/equipment/category/list"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -33,7 +33,7 @@
                    <v-tab>Information</v-tab>
                    <v-tab>SEO</v-tab>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item :eager="true" class="pa-5">
                      <v-text-field
                        v-model="ec.name"
                        label="Name*"
@@ -62,43 +62,43 @@
                         autocomplete="nope"
                       ></v-text-field>
 
-                     <v-textarea
-                       label="Category Description (Displayed on New Equipment Listing Page)"
-                       auto-grow
-                       name="about"
-                       outlined
-                       v-model="ec.about"
-                     ></v-textarea>
+                      <Textarea
+                          autocomplete="nope"
+                          outlined
+                          name="about"
+                          label="Category Description (Displayed on New Equipment Listing Page)"
+                          :value="ec.about"
+                      ></Textarea>
 
-                     <v-textarea
-                       label="Category Description (Displayed on Used Equipment Listing Page)"
-                       auto-grow
-                       name="used_about"
-                       outlined
-                       v-model="ec.used_about"
-                     ></v-textarea>
+                      <Textarea
+                            label="Category Description (Displayed on Used Equipment Listing Page)"
+                            autocomplete="nope"
+                            outlined
+                            name="used_about"
+                            :value="ec.used_about"
+                      ></Textarea>
 
-                     <v-textarea
-                       label="New Accordion Content"
-                       auto-grow
-                       name="new_seo_content"
-                       outlined
-                       v-model="ec.new_seo_content"
-                     ></v-textarea>
+                      <Textarea
+                            label="New Accordion Content"
+                            autocomplete="nope"
+                            outlined
+                            name="new_seo_content"
+                            :value="ec.new_seo_content"
+                      ></Textarea>
 
-                     <v-textarea
-                       label="Used Accordion Content"
-                       auto-grow
-                       name="used_seo_content"
-                       outlined
-                       v-model="ec.used_seo_content"
-                     ></v-textarea>
+                      <Textarea
+                            label="Used Accordion Content"
+                            autocomplete="nope"
+                            outlined
+                            name="used_seo_content"
+                            :value="ec.used_seo_content"
+                      ></Textarea>
 
                    </v-tab-item>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item  :eager="true" class="pa-5">
                      <SEO
-                     :seo="ec"
+                        :seo="ec"
                      >
                      </SEO>
                    </v-tab-item>
@@ -108,7 +108,7 @@
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center" class="full">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels accordion v-model="panel">
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Equipment Type</v-expansion-panel-header>
@@ -118,11 +118,39 @@
                             :label="item.name"
                             :value="item.id"
                             name="id_equipment_type"
-                            v-for="item in type"
+                            v-for="item in ec.type"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
                       </v-expansion-panel-content>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel class="_collapse">
+                        <v-expansion-panel-header>Image</v-expansion-panel-header>
+                        <v-expansion-panel-content :eager="true">
+                            <File
+                                block
+                                cls="_block"
+                                :value="ec.media"
+                                text="Choose Image"
+                                name="id_media"
+                                :multiple="false"
+                            ></File>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel class="_collapse">
+                        <v-expansion-panel-header>Default Image</v-expansion-panel-header>
+                        <v-expansion-panel-content :eager="true">
+                            <File
+                                block
+                                cls="_block"
+                                :value="ec.default_media"
+                                text="Choose Image"
+                                name="id_default_media"
+                                :multiple="false"
+                            ></File>
+                        </v-expansion-panel-content>
                     </v-expansion-panel>
 
                   </v-expansion-panels>
@@ -134,8 +162,6 @@
 </template>
 <script>
 import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
 
 import Seo from '../components/SEO.vue'
 Vue.component('SEO', Seo)
@@ -148,8 +174,6 @@ Vue.component('SEO', Seo)
       return this.$axiosx.get(url)
       .then((res) => {
         this.ec = res.data.equipmentCategory;
-        this.actions = res.data.actions;
-        this.type = res.data.type;
       });
     },
     data () {
@@ -157,6 +181,7 @@ Vue.component('SEO', Seo)
         ec: [],
         actions: [],
         type: [],
+        panel: 0,
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -166,8 +191,36 @@ Vue.component('SEO', Seo)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/equipment/category/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.ec = res.data.equipmentCategory;
+              });
+          }
+      },
+        getHeading () {
+            if (this.ec && this.ec.name) {
+                  return 'Category : ' + this.ec.name;
+            }
+
+            return 'Add Category ';
+        },
       ecAdd () {
+          if (this.$refs.equipmentCategoryAdd.validate() == false) {
+            this.$store.commit('snackbar', {
+              status: 'error',
+              text: 'Please supply mandatory fields.'
+            });
+            return true;
+          }
         var fd = new FormData(this.$refs.equipmentCategoryAdd.$el);
         this.dialog = true;
         var url = '/equipment/category/add';

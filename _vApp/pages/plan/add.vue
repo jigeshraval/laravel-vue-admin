@@ -2,7 +2,7 @@
     <div>
         <v-form id="planAdd" ref="planAdd" @submit.prevent="planAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
               <v-btn
-                  :to="actions.slug"
+                  to="/plans"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -34,13 +34,13 @@
                         autocomplete="nope"
                       ></v-text-field>
 
-                      <v-textarea
-                        auto-grow
-                        outlined
-                        name="description"
-                        label="Description*"
-                        v-model="plans.description"
-                      ></v-textarea>
+                      <Textarea
+                          autocomplete="nope"
+                          outlined
+                          name="description"
+                          label="Description*"
+                          :value="plans.description"
+                      ></Textarea>
 
                       <v-text-field
                         v-model="plans.duration"
@@ -90,17 +90,19 @@
                 </v-flex>
                 <v-flex class="col sm12 xs12 md3 xl3">
                   <div justify="center" class="full">
-                    <v-expansion-panels accordion>
+                    <v-expansion-panels
+                    accordion
+                    v-model="panel">
 
                       <v-expansion-panel class="_collapse">
                         <v-expansion-panel-header>Is Featured</v-expansion-panel-header>
-                        <v-expansion-panel-content>
+                        <v-expansion-panel-content :eager="true">
                           <v-radio-group v-model="plans.is_featured">
                             <v-radio
                               :label="item.name"
                               :value="item.id"
                               name="is_featured"
-                              v-for="item in featured"
+                              v-for="item in plans.featured"
                               :key="item.id"
                             ></v-radio>
                           </v-radio-group>
@@ -109,25 +111,20 @@
 
                       <v-expansion-panel class="_collapse">
                         <v-expansion-panel-header>For</v-expansion-panel-header>
-                        <v-expansion-panel-content>
+                        <v-expansion-panel-content :eager="true">
                           <v-radio-group v-model="plans.for" :mandatory="false">
                             <v-radio
                               :label="item.name"
                               :value="item.id"
                               name="for"
-                              v-for="item in fors"
+                              v-for="item in plans.fors"
                               :key="item.id"
                             ></v-radio>
                           </v-radio-group>
                         </v-expansion-panel-content>
                       </v-expansion-panel>
 
-                      <v-expansion-panel class="_collapse">
-                        <v-expansion-panel-header>Hero Image</v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                          Hero Image
-                        </v-expansion-panel-content>
-                      </v-expansion-panel>
+
                     </v-expansion-panels>
                   </div>
                 </v-flex>
@@ -145,30 +142,52 @@
       }
       return this.$axiosx.get(url)
       .then((res) => {
-        console.log(res.data);
         this.plans = res.data.plans;
-        this.actions = res.data.actions;
-        this.featured = res.data.featured;
-        this.fors = res.data.fors;
       });
     },
     data () {
       return {
         plans: [],
-        featured: [],
-        fors: [],
-        actions: [],
         validateRules: [
           v => !!v || 'This field is required'
         ],
+        panel: 0,
         emailRules: [
           v => !!v || 'E-mail is required',
           v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/plans/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.plans = res.data.plans;
+              });
+          }
+      },
+      getHeading () {
+          if (this.ad && this.ad.name) {
+                return 'Plans: ' + this.ad.name;
+          }
+
+          return 'Add Plans';
+      },
       planAdd () {
+        if (this.$refs.planAdd.validate() == false) {
+              this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+              });
+              return true;
+        }
         var fd = new FormData(this.$refs.planAdd.$el);
         this.dialog = true;
         var url = '/plans/add';
@@ -191,9 +210,6 @@
               this.$store.commit('snackbar', res.data);
           }
         });
-      },
-      saveManufacturer () {
-        this.$refs.planAdd.submit();
       },
       added() {
         if (this.$router.history.current.query.added == 'true') {

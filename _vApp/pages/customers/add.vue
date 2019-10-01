@@ -2,10 +2,10 @@
     <div>
         <v-form id="CustomerForm" ref="CustomerForm" @submit.prevent="customerAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
               <v-btn
-                  :to="actions.slug"
+                  to="/customers"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -108,7 +108,6 @@ export default {
     return this.$axiosx.get(url)
     .then((res) => {
       this.customer = res.data.customer;
-      this.actions = res.data.actions;
       if (this.customer.status == 0) {
         this.customer.status == false;
       } else {
@@ -129,7 +128,6 @@ export default {
         status: false,
         free_membership: false
       },
-      actions: [],
       validateRules: [
         v => !!v || 'This field is required'
       ],
@@ -145,7 +143,21 @@ export default {
         },
     },
   methods: {
+    getHeading () {
+        if (this.customer && this.customer) {
+            return 'Customer: ' + this.customer.first_name + ' ' + this.customer.last_name;
+        }
+
+        return 'Add Customer';
+    },
     customerAdd () {
+        if (this.$refs.CustomerForm.validate() == false) {
+            this.$store.commit('snackbar', {
+              status: 'error',
+              text: 'Please supply mandatory fields.'
+            });
+            return true;
+        }
       var fd = new FormData(this.$refs.CustomerForm.$el);
       this.dialog = true;
       var url = '/customer/add';
@@ -175,7 +187,6 @@ export default {
           return this.$axiosx.get(url)
           .then((res) => {
             this.customer = res.data.customer;
-            this.actions = res.data.actions;
             if (this.customer.status == 0) {
                 this.customer.status == false;
             } else {

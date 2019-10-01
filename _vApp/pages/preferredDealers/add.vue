@@ -2,7 +2,7 @@
     <div>
         <v-form id="preferredDalerAdd" ref="preferredDalerAdd" @submit.prevent="pAdd" autocomplete="nope">
             <Header
-              heading="Preferred Dealer"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    to="/dealer/list"
+                    to="/preferred/dealers"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -33,9 +33,9 @@
                    <v-tab>Information</v-tab>
                    <v-tab>SEO</v-tab>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item :eager="true" class="pa-5">
                      <v-select
-                       :items="states"
+                       :items="preferred.states"
                        item-text="name"
                        item-value="id"
                        v-model="preferred.id_state"
@@ -86,7 +86,7 @@
                        </v-flex>
                        <v-flex col md6 sm6 xs12>
                          <v-text-field
-                           v-model="address.city"
+                           v-model="preferred.city"
                            label="City"
                            type="text"
                            name="city"
@@ -96,19 +96,18 @@
                        </v-flex>
                        <v-flex col md6 sm6 xs12>
                          <v-select
-                           :items="states"
+                           :items="preferred.states"
                            item-text="name"
                            item-value="id"
-                           v-model="address.state"
+                           v-model="preferred.state"
                            label="State"
                            autocomplete="nope"
                          ></v-select>
-                         <input type="hidden" name="state" :value="address.state">
-                         {{ address.state }}
+                         <input type="hidden" name="state" :value="preferred.state">
                        </v-flex>
                        <v-flex col md6 sm6 xs12>
                          <v-text-field
-                           v-model="address.zip"
+                           v-model="preferred.zip"
                            label="Zip"
                            type="tel"
                            name="zip"
@@ -120,26 +119,27 @@
 
                      </v-layout>
 
-                     <v-textarea
-                       label="Content"
-                       auto-grow
-                       name="content"
-                       outlined
-                       v-model="preferred.content"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         label="Content"
+                         name="content"
+                         :value="preferred.content"
+                     ></Textarea>
 
-                     <v-textarea
-                       label="Accordion Content"
-                       auto-grow
-                       name="accordion_content"
-                       outlined
-                       v-model="preferred.accordion_content"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         label="Accordion Content"
+                         name="accordion_content"
+                         :value="preferred.accordion_content"
+                     ></Textarea>
+
                    </v-tab-item>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item class="pa-5" :eager="true">
                      <SEO
-                     :seo="preferred"
+                        :seo="preferred"
                      >
                      </SEO>
                    </v-tab-item>
@@ -149,17 +149,19 @@
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels
+                  v-model="panel"
+                  accordion>
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Dealer</v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content :eager="true">
                         <v-radio-group v-model="preferred.id_dealer" :mandatory="false">
                           <v-radio
                             :label="item.name"
                             :value="item.id"
                             name="id_dealer"
-                            v-for="item in dealer"
+                            v-for="item in preferred.dealers"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
@@ -167,23 +169,45 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel>
-                      <v-expansion-panel-header>Hero Videos</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Hero Videos
+                      <v-expansion-panel-header>Logo</v-expansion-panel-header>
+                      <v-expansion-panel-content :eager="true">
+                          <File
+                              block
+                              cls="_block"
+                              :value="preferred.image"
+                              text="Choose Logo"
+                              name="id_image"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
 
                     <v-expansion-panel>
-                      <v-expansion-panel-header>Profile Image</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Profile Image
+                      <v-expansion-panel-header>Default Image</v-expansion-panel-header>
+                      <v-expansion-panel-content :eager="true">
+                          <File
+                              block
+                              cls="_block"
+                              :value="preferred.default_image"
+                              text="Choose Default Image"
+                              name="id_default_image"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
 
                     <v-expansion-panel>
-                      <v-expansion-panel-header>Hero Image</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Hero Image
+                      <v-expansion-panel-header>Video</v-expansion-panel-header>
+                      <v-expansion-panel-content :eager="true">
+                          <File
+                              block
+                              cls="_block"
+                              :value="preferred.video"
+                              text="Choose Video"
+                              name="id_video"
+                              type="video"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                   </v-expansion-panels>
@@ -195,13 +219,11 @@
 </template>
 <script>
 import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
 
 import Seo from '../components/SEO.vue'
 Vue.component('SEO', Seo)
   export default {
-    beforeCreate() {
+    created () {
       var url = '/preferred/dealer/add';
       if (this.$router.history.current.params && this.$router.history.current.params.id) {
         url = '/preferred/dealer/edit/' + this.$router.history.current.params.id;
@@ -209,19 +231,12 @@ Vue.component('SEO', Seo)
       return this.$axiosx.get(url)
       .then((res) => {
         this.preferred = res.data.preferred;
-        this.dealer = res.data.dealer;
-        this.states = res.data.states;
-        this.address = res.data.address;
-        this.selectedDealer = res.data.selectedDealer;
       });
     },
     data () {
       return {
         preferred: [],
-        dealer: [],
-        address: [],
-        selectedDealer: [],
-        states: [],
+        panel: 0,
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -231,8 +246,36 @@ Vue.component('SEO', Seo)
         ]
       }
     },
+    watch : {
+        '$route.query.added' : function (val) {
+            this.getData();
+        }
+    },
     methods: {
-      pAdd () {
+        getData () {
+          if (this.$route.params && this.$route.params.id) {
+                var url = '/preferred/dealer/edit/' + this.$route.params.id;
+                return this.$axiosx.get(url)
+                .then((res) => {
+                    this.preferred = res.data.preferred;
+                });
+            }
+        },
+        getHeading () {
+            if (this.ad && this.ad.name) {
+                  return 'Preferred Dealer: ' + this.ad.name;
+            }
+
+            return 'Add Preferred Dealer';
+    },
+    pAdd () {
+          if (this.$refs.preferredDalerAdd.validate() == false) {
+              this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+              });
+              return true;
+          }
         var fd = new FormData(this.$refs.preferredDalerAdd.$el);
         this.dialog = true;
         var url = '/preferred/dealer/add';

@@ -2,8 +2,20 @@
     <div>
         <v-form id="PushNotificationForm" ref="PushNotificationForm" @submit.prevent="pnAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
+
+            <v-switch
+              v-model="pn.status"
+              hide-details
+              class="mr-8"
+              inset
+              name="status"
+              label="Status"
+              color="success"
+              :value="pn.status"
+            ></v-switch>
+
             <v-btn
                 min-width="130px"
                 color="success"
@@ -15,7 +27,7 @@
                 Save
             </v-btn>
               <v-btn
-                  :to="actions.slug"
+                  to="/push/notification"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -55,12 +67,20 @@
                 </v-card>
               </v-flex>
               <div class="col xs12 sm3 md3 xl3">
-                <v-expansion-panels accordion>
+                <v-expansion-panels accordion
+                v-model="panel">
 
                     <v-expansion-panel class="_collapse">
                         <v-expansion-panel-header>Media</v-expansion-panel-header>
                         <v-expansion-panel-content :eager="true">
-
+                            <File
+                                block
+                                cls="_block"
+                                :value="pn.media"
+                                text="Choose Image"
+                                name="id_media"
+                                :multiple="false"
+                            ></File>
                         </v-expansion-panel-content>
                     </v-expansion-panel>
 
@@ -81,18 +101,12 @@ export default {
     return this.$axiosx.get(url)
     .then((res) => {
       this.pn = res.data.pn;
-      this.actions = res.data.actions;
     });
-  },
-  watch : {
-    '$route.query.added' : function (val) {
-        this.getData();
-    }
   },
   data () {
     return {
       pn: [],
-      actions: [],
+      panel: 0,
       validateRules: [
         v => !!v || 'This field is required'
       ],
@@ -106,53 +120,64 @@ export default {
       }
     }
   },
-  methods: {
-    pnAdd () {
-      if (this.$refs.PushNotificationForm.validate() == false) {
-        this.$store.commit('snackbar', this.error);
-        return true;
-      }
-
-      var fd = new FormData(this.$refs.PushNotificationForm.$el);
-      var url = '/push/notification/add';
-      if (this.$router.history.current.params && this.$router.history.current.params.id) {
-        url = '/push/notification/edit/' + this.$router.history.current.params.id;
-      }
-      this.$axiosx.post(url, fd).then((res) => {
-        if (res.data.status == 'error') {
-          this.$store.commit('snackbar', res.data);
-        }
-
-        if (res.data.status == 'redirect') {
-          this.$router.push({
-            path: res.data.text,
-            query: { added: 'true' }
-          });
-          this.added();
-        }
-        if (res.data.status == 'success') {
-            this.$store.commit('snackbar', res.data);
-        }
-      });
-    },
-    added() {
-      if (this.$router.history.current.query.added == 'true') {
-        this.$store.commit('snackbar', {
-          status: 'success',
-          text: 'Equipment options Added Successfully'
-        });
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
       }
     },
-    getData() {
-        if (this.$route.params && this.$route.params.id) {
-          var url = '/push/notification/edit/' + this.$route.params.id;
-          return this.$axiosx.get(url)
-          .then((res) => {
-            this.pn = res.data.pn;
-            this.actions = res.data.actions;
+    methods: {
+        getHeading () {
+            if (this.pn && this.pn.title) {
+                return 'Push Notification: ' + this.pn.title;
+            }
+
+            return 'Add Push Notification';
+        },
+        pnAdd () {
+          if (this.$refs.PushNotificationForm.validate() == false) {
+            this.$store.commit('snackbar', this.error);
+            return true;
+          }
+
+          var fd = new FormData(this.$refs.PushNotificationForm.$el);
+          var url = '/push/notification/add';
+          if (this.$router.history.current.params && this.$router.history.current.params.id) {
+            url = '/push/notification/edit/' + this.$router.history.current.params.id;
+          }
+          this.$axiosx.post(url, fd).then((res) => {
+            if (res.data.status == 'error') {
+              this.$store.commit('snackbar', res.data);
+            }
+
+            if (res.data.status == 'redirect') {
+              this.$router.push({
+                path: res.data.text,
+                query: { added: 'true' }
+              });
+              this.added();
+            }
+            if (res.data.status == 'success') {
+                this.$store.commit('snackbar', res.data);
+            }
           });
+        },
+        added() {
+          if (this.$router.history.current.query.added == 'true') {
+            this.$store.commit('snackbar', {
+              status: 'success',
+              text: 'Equipment options Added Successfully'
+            });
+          }
+        },
+        getData() {
+            if (this.$route.params && this.$route.params.id) {
+              var url = '/push/notification/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                this.pn = res.data.pn;
+              });
+            }
         }
     }
-  }
 }
 </script>

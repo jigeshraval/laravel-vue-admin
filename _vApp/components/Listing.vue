@@ -28,6 +28,7 @@
                                hide-details
                                width="50px"
                                solo
+                               class="_filter"
                                v-model="key.search"
                                :placeholder="key.text"
                                autocomplete="nope"

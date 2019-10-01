@@ -8,13 +8,14 @@ import Form from './pages/Form'
 import Table from './pages/Table'
 import ComponentList from './pages/components/list.vue'
 import ComponentAdd from './pages/components/add.vue'
-import ManufacturerList from './pages/manufacturer/list.vue'
+
+import ManufacturerList from './pages/manufacturer/index.vue'
 import ManufacturerAdd from './pages/manufacturer/add.vue'
 import ManufacturerEdit from './pages/manufacturer/add.vue'
 
 import DealerAdd from './pages/dealers/add.vue'
 import DealerEdit from './pages/dealers/add.vue'
-import DealerList from './pages/dealers/list.vue'
+import DealerList from './pages/dealers/index.vue'
 
 import CustomerAdd from './pages/customers/add.vue'
 import CustomerEdit from './pages/customers/add.vue'
@@ -22,19 +23,19 @@ import CustomerList from './pages/customers/index.vue'
 
 import PreferredDealerAdd from './pages/preferredDealers/add.vue'
 import PreferredDealerEdit from './pages/preferredDealers/add.vue'
-import PreferredDealerList from './pages/preferredDealers/list.vue'
+import PreferredDealerList from './pages/preferredDealers/index.vue'
 
 import CompletedProjectsAdd from './pages/completedProjects/add.vue'
 import CompletedProjectsEdit from './pages/completedProjects/add.vue'
-import CompletedProjectsList from './pages/completedProjects/list.vue'
+import CompletedProjectsList from './pages/completedProjects/index.vue'
 
 import TrustedCustomerAdd from './pages/trustedCustomers/add.vue'
 import TrustedCustomerEdit from './pages/trustedCustomers/add.vue'
-import TrustedCustomerList from './pages/trustedCustomers/list.vue'
+import TrustedCustomerList from './pages/trustedCustomers/index.vue'
 
 import partnersAdd from './pages/partners/add.vue'
 import partnersEdit from './pages/partners/add.vue'
-import partnersList from './pages/partners/list.vue'
+import partnersList from './pages/partners/index.vue'
 
 import PostCategoryAdd from './pages/postCategory/add.vue'
 import PostCategoryEdit from './pages/postCategory/add.vue'
@@ -42,43 +43,43 @@ import PostCategoryList from './pages/postCategory/list.vue'
 
 import PostAdd from './pages/post/add.vue'
 import PostEdit from './pages/post/add.vue'
-import PostList from './pages/post/list.vue'
+import PostList from './pages/post/index.vue'
 
 import PageAdd from './pages/page/add.vue'
 import PageEdit from './pages/page/add.vue'
-import PageList from './pages/page/list.vue'
+import PageList from './pages/page/index.vue'
 
 import BlockAdd from './pages/block/add.vue'
 import BlockEdit from './pages/block/add.vue'
-import BlockList from './pages/block/list.vue'
+import BlockList from './pages/block/index.vue'
 
 import PlansAdd from './pages/plan/add.vue'
 import PlansEdit from './pages/plan/add.vue'
-import PlansList from './pages/plan/list.vue'
+import PlansList from './pages/plan/index.vue'
 
 import EquipmentTypeAdd from './pages/equipmentType/add.vue'
 import EquipmentTypeEdit from './pages/equipmentType/add.vue'
-import EquipmentTypeList from './pages/equipmentType/list.vue'
+import EquipmentTypeList from './pages/equipmentType/index.vue'
 
 import EquipmentCategoryAdd from './pages/equipmentCategory/add.vue'
 import EquipmentCategoryEdit from './pages/equipmentCategory/add.vue'
-import EquipmentCategoryList from './pages/equipmentCategory/list.vue'
+import EquipmentCategoryList from './pages/equipmentCategory/index.vue'
 
 import EquipmentOptionsAdd from './pages/equipmentOptions/add.vue'
 import EquipmentOptionsEdit from './pages/equipmentOptions/add.vue'
-import EquipmentOptionsList from './pages/equipmentOptions/list.vue'
+import EquipmentOptionsList from './pages/equipmentOptions/index.vue'
 
 import AdvertisementAdd from './pages/advertisement/add.vue'
 import AdvertisementEdit from './pages/advertisement/add.vue'
-import AdvertisementList from './pages/advertisement/list.vue'
+import AdvertisementList from './pages/advertisement/index.vue'
 
 import PushNotificationAdd from './pages/pushNotification/add.vue'
 import PushNotificationEdit from './pages/pushNotification/add.vue'
-import PushNotificationList from './pages/pushNotification/list.vue'
+import PushNotificationList from './pages/pushNotification/index.vue'
 
 import EmailAdd from './pages/emails/add.vue'
 import EmailEdit from './pages/emails/add.vue'
-import EmailList from './pages/emails/list.vue'
+import EmailList from './pages/emails/index.vue'
 
 import EmployeeAdd from './pages/employee/add.vue'
 import EmployeeEdit from './pages/employee/add.vue'
@@ -152,7 +153,7 @@ const routes = [
       component: EmailEdit
     },
     {
-        path: '/email/list',
+        path: '/emails',
         component: EmailList
     },
     {
@@ -164,7 +165,7 @@ const routes = [
       component: PushNotificationEdit
     },
     {
-        path: '/push/notification/list',
+        path: '/push/notification',
         component: PushNotificationList
     },
     {
@@ -176,7 +177,7 @@ const routes = [
       component: AdvertisementEdit
     },
     {
-        path: '/advertisement/list',
+        path: '/advertisement',
         component: AdvertisementList
     },
     {
@@ -188,7 +189,7 @@ const routes = [
       component: EquipmentOptionsEdit
     },
     {
-        path: '/equipment/options/list',
+        path: '/equipment/options',
         component: EquipmentOptionsList
     },
     {
@@ -200,7 +201,7 @@ const routes = [
       component: EquipmentCategoryEdit
     },
     {
-        path: '/equipment/category/list',
+        path: '/equipment/category',
         component: EquipmentCategoryList
     },
     {
@@ -212,7 +213,7 @@ const routes = [
       component: EquipmentTypeEdit
     },
     {
-        path: '/equipment/type/list',
+        path: '/equipment/type',
         component: EquipmentTypeList
     },
     {
@@ -224,7 +225,7 @@ const routes = [
       component: PlansEdit
     },
     {
-        path: '/plans/list',
+        path: '/plans',
         component: PlansList
     },
     {
@@ -236,7 +237,7 @@ const routes = [
       component: BlockEdit
     },
     {
-        path: '/block/list',
+        path: '/block',
         component: BlockList
     },
     {
@@ -248,7 +249,7 @@ const routes = [
       component: PageEdit
     },
     {
-        path: '/page/list',
+        path: '/pages',
         component: PageList
     },
     {
@@ -260,7 +261,7 @@ const routes = [
       component: PostEdit
     },
     {
-        path: '/post/list',
+        path: '/post',
         component: PostList
     },
     {
@@ -272,7 +273,7 @@ const routes = [
       component: PostCategoryEdit
     },
     {
-        path: '/post/category/list',
+        path: '/post/category',
         component: PostCategoryList
     },
     {
@@ -284,7 +285,7 @@ const routes = [
       component: partnersEdit
     },
     {
-        path: '/partners/list',
+        path: '/partners',
         component: partnersList
     },
     {
@@ -296,7 +297,7 @@ const routes = [
       component: TrustedCustomerEdit
     },
     {
-        path: '/trusted/customers/list',
+        path: '/trusted/customers',
         component: TrustedCustomerList
     },
     {
@@ -308,7 +309,7 @@ const routes = [
       component: CompletedProjectsEdit
     },
     {
-        path: '/completed/projects/list',
+        path: '/completed/projects',
         component: CompletedProjectsList
     },
     {
@@ -320,7 +321,7 @@ const routes = [
       component: PreferredDealerEdit
     },
     {
-        path: '/preferred/dealer/list',
+        path: '/preferred/dealers',
         component: PreferredDealerList
     },
     {
@@ -332,7 +333,7 @@ const routes = [
       component: DealerEdit
     },
     {
-        path: '/dealer/list',
+        path: '/dealers',
         component: DealerList
     },
     {
@@ -344,7 +345,7 @@ const routes = [
       component: CustomerEdit
     },
     {
-        path: '/customer/list',
+        path: '/customers',
         component: CustomerList
     },
     {
@@ -360,7 +361,7 @@ const routes = [
       component: ManufacturerAdd
     },
     {
-        path: '/manufacturer/list',
+        path: '/manufacturers',
         component: ManufacturerList
     },
     {

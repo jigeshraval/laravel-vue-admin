@@ -22,7 +22,7 @@
             >
                 <input v-if="name" type="hidden" :name="getName()" :value="m.id">
                 <a
-                    v-if="m.type == 'application' && m.format == 'application/pdf'"
+                    v-if="m.type == 'application' && (m.format == 'application/pdf' || m.format == 'pdf')"
                     :href="m.url"
                     class="_pdf"
                     target="_blank"
@@ -74,7 +74,7 @@ export default {
         },
         value: {
             default: function () {
-                return [];
+                return '';
             }
         }
     },
@@ -85,7 +85,29 @@ export default {
             mediaListIds: []
         }
     },
+    mounted () {
+        this.iterateMediaList();
+    },
     methods: {
+        iterateMediaList (list = null) {
+
+            if (!list) {
+                list = this.value;
+            }
+
+            if (list) {
+
+                if (!this.multiple) {
+                    var mediaList = new Array();
+                    mediaList.push(list);
+                } else {
+                    var mediaList = list;
+                }
+
+                this.mediaList = mediaList;
+            }
+
+        },
         getName () {
             if (this.multiple) {
                 return this.name + '[]';
@@ -112,21 +134,7 @@ export default {
             }
         },
         value (list) {
-
-            if (!this.multiple) {
-                var mediaList = new Array();
-                mediaList.push(list);
-            } else {
-                var mediaList = list;
-            }
-
-            // if (mediaList && mediaList.length) {
-            //     for (var l in mediaList) {
-            //         this.mediaListIds.push(list[l]['id']);
-            //     }
-            // }
-
-            this.mediaList = mediaList;
+            this.iterateMediaList(list);
         },
         mediaList (list) {
 

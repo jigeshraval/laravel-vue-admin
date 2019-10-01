@@ -25,7 +25,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    to="/manufacturer/list"
+                    to="/manufacturers"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -62,7 +62,7 @@
                 <Geo
                     label="Location"
                     id="location"
-                    :value="address"
+                    :value="manufacturer"
                 >
                 </Geo>
                 <v-text-field
@@ -127,14 +127,14 @@
                   <v-expansion-panel-header>Type of Equipment</v-expansion-panel-header>
                   <v-expansion-panel-content :eager="true">
                     <div
-                      v-for="item in type"
+                      v-for="item in manufacturer.equipment_type"
                       :key="item.id"
                     >
                       <v-checkbox
                         hide-details
                         name="type[]"
                         :value="item.id"
-                        v-model="selected_type"
+                        v-model="manufacturer.selected_type"
                         :label="item.name"
                       ></v-checkbox>
                     </div>
@@ -145,12 +145,12 @@
                     <v-expansion-panel-header>Categories</v-expansion-panel-header>
                     <v-expansion-panel-content :eager="true">
                       <v-checkbox
-                        v-for="(cat, i) in category"
+                        v-for="(cat, i) in manufacturer.equipment_category"
                         :key="i"
                         hide-details
                         :value="cat.id"
                         name="categories[]"
-                        v-model="selected_category"
+                        v-model="manufacturer.selected_category"
                         :label="cat.name"
                       ></v-checkbox>
                     </v-expansion-panel-content>
@@ -201,25 +201,14 @@ import Vue from 'vue'
       return this.$axiosx.get(url)
       .then((res) => {
             this.manufacturer = res.data.manufacturer;
-            this.address = res.data.address;
-            this.actions = res.data.actions;
-            this.type = res.data.type;
-            this.category = res.data.category;
-            this.selected_category = res.data.selected_category;
-            this.selected_type = res.data.selected_type;
       });
     },
     data () {
       return {
         manufacturer: [],
         type: [],
-        address: [],
-        actions: [],
-        dialog: false,
         added: false,
         category: [],
-        selected_category: [],
-        selected_type: [],
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -287,12 +276,6 @@ import Vue from 'vue'
             return this.$axiosx.get(url)
             .then((res) => {
                 this.manufacturer = res.data.manufacturer;
-                this.address = res.data.address;
-                this.actions = res.data.actions;
-                this.type = res.data.type;
-                this.category = res.data.category;
-                this.selected_category = res.data.selected_category;
-                this.selected_type = res.data.selected_type;
             });
         }
       }

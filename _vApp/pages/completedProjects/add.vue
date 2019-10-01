@@ -2,7 +2,7 @@
     <div>
         <v-form id="completedProjectsAdd" ref="completedProjectsAdd" @submit.prevent="cpAdd" autocomplete="nope">
             <Header
-              heading="Completed Projects"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    to="/completed/projects/list"
+                    to="/completed/projects"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -33,7 +33,7 @@
                    <v-tab>Information</v-tab>
                    <v-tab>SEO</v-tab>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item class="pa-5" :eager="true">
                      <v-text-field
                        v-model="cp.title"
                        label="Title*"
@@ -69,7 +69,7 @@
                      <v-layout row wrap>
                        <v-flex col md6 sm6 xs12>
                          <v-text-field
-                           v-model="address.city"
+                           v-model="cp.city"
                            label="City"
                            type="text"
                            name="city"
@@ -79,18 +79,18 @@
                        </v-flex>
                        <v-flex col md6 sm6 xs12>
                          <v-select
-                           :items="states"
+                           :items="cp.states"
                            item-text="name"
                            item-value="id"
-                           v-model="address.state"
+                           v-model="cp.id_state"
                            label="State"
                            autocomplete="nope"
                          ></v-select>
-                         <input type="hidden" name="state" :value="address.state">
+                         <input type="hidden" name="state" :value="cp.id_state">
                        </v-flex>
                        <v-flex col md6 sm6 xs12>
                          <v-text-field
-                           v-model="address.zip"
+                           v-model="cp.zip"
                            label="Zip"
                            type="tel"
                            name="zip"
@@ -102,42 +102,43 @@
 
                      </v-layout>
 
-                     <v-textarea
-                       label="Description"
-                       auto-grow
-                       name="description"
-                       outlined
-                       v-model="cp.description"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         name="description"
+                         label="Description"
+                         :value="cp.description"
+                     ></Textarea>
 
-                     <v-textarea
-                       label="Specification"
-                       auto-grow
-                       name="specification"
-                       outlined
-                       v-model="cp.specification"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         name="specification"
+                         label="Specification"
+                         :value="cp.specification"
+                     ></Textarea>
 
-                     <v-textarea
-                       label="Component Requirement"
-                       auto-grow
-                       name="component_requirement"
-                       outlined
-                       v-model="cp.component_requirement"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         name="component_requirement"
+                         label="Component Requirement"
+                         :value="cp.component_requirement"
+                     ></Textarea>
 
-                     <v-textarea
-                       label="Additional Details"
-                       auto-grow
-                       name="additional_details"
-                       outlined
-                       v-model="cp.additional_details"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         name="additional_details"
+                         label="Additional Details"
+                         :value="cp.additional_details"
+                     ></Textarea>
+
                    </v-tab-item>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item class="pa-5" :eager="true">
                      <SEO
-                     :seo="cp"
+                        :seo="cp"
                      >
                      </SEO>
                    </v-tab-item>
@@ -151,13 +152,13 @@
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Dealer</v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content :eager="true">
                         <v-radio-group v-model="cp.id_dealer" :mandatory="false">
                           <v-radio
                             :label="item.name"
                             :value="item.id"
                             name="id_dealer"
-                            v-for="item in dealer"
+                            v-for="item in cp.dealers"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
@@ -166,13 +167,13 @@
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Manufacturers</v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content :eager="true">
                         <v-radio-group v-model="cp.id_manufacturer" :mandatory="false">
                           <v-radio
                             :label="item.name"
                             :value="item.id"
                             name="id_manufacturer"
-                            v-for="item in manufacturers"
+                            v-for="item in cp.manufacturers"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
@@ -181,23 +182,46 @@
 
                     <v-expansion-panel>
                       <v-expansion-panel-header>Hero Videos</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Hero Videos
+                      <v-expansion-panel-content :eager="true">
+                          <File
+                              block
+                              cls="_block"
+                              :value="cp.video"
+                              text="Choose Video"
+                              name="id_video"
+                              type="video"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
 
                     <v-expansion-panel>
-                      <v-expansion-panel-header>Profile Image</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Profile Image
+                      <v-expansion-panel-header>PDF</v-expansion-panel-header>
+                      <v-expansion-panel-content :eager="true">
+                          <File
+                              block
+                              cls="_block"
+                              :value="cp.pdf"
+                              text="Choose PDF"
+                              name="id_pdf"
+                              type="pdf"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
 
                     <v-expansion-panel>
-                      <v-expansion-panel-header>Hero Image</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Hero Image
-                      </v-expansion-panel-content>
+                        <v-expansion-panel-header>Images</v-expansion-panel-header>
+                        <v-expansion-panel-content :eager="true">
+                            <File
+                                block
+                                cls="_block"
+                                :value="cp.images"
+                                text="Choose Images"
+                                name="images"
+                                :multiple="true"
+                            ></File>
+                        </v-expansion-panel-content>
                     </v-expansion-panel>
                   </v-expansion-panels>
                 </div>
@@ -208,12 +232,10 @@
 </template>
 <script>
 import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
-
 import Seo from '../components/SEO.vue'
 Vue.component('SEO', Seo)
-  export default {
+
+export default {
     beforeCreate() {
       var url = '/completed/project/add';
       if (this.$router.history.current.params && this.$router.history.current.params.id) {
@@ -221,21 +243,12 @@ Vue.component('SEO', Seo)
       }
       return this.$axiosx.get(url)
       .then((res) => {
-        console.log(res.data);
         this.cp = res.data.cp;
-        this.dealer = res.data.dealers;
-        this.states = res.data.states;
-        this.address = res.data.address;
-        this.manufacturers = res.data.manufacturers;
       });
     },
     data () {
       return {
         cp: [],
-        dealer: [],
-        address: [],
-        manufacturers:[],
-        states: [],
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -245,8 +258,36 @@ Vue.component('SEO', Seo)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/completed/project/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                this.cp = res.data.cp;
+              });
+          }
+      },
+        getHeading() {
+            if (this.ad && this.ad.name) {
+                return 'Completed Project: ' + this.ad.name;
+            }
+
+            return 'Add Completed Project';
+        },
       cpAdd () {
+        if (this.$refs.completedProjectsAdd.validate() == false) {
+          this.$store.commit('snackbar', {
+            status: 'error',
+            text: 'Please supply mandatory fields.'
+          });
+          return true;
+        }
         var fd = new FormData(this.$refs.completedProjectsAdd.$el);
         this.dialog = true;
         var url = '/completed/project/add';
@@ -263,17 +304,14 @@ Vue.component('SEO', Seo)
               path: res.data.text,
               query: { added: 'true' }
             });
-            this.addedManufacturer();
+            this.added();
           }
           if (res.data.status == 'success') {
               this.$store.commit('snackbar', res.data);
           }
         });
       },
-      saveManufacturer () {
-        this.$refs.completedProjectsAdd.submit();
-      },
-      addedManufacturer() {
+      added() {
         if (this.$router.history.current.query.added == 'true') {
           this.$store.commit('snackbar', {
             status: 'success',

@@ -2,7 +2,7 @@
     <div>
         <v-form id="EmployeeForm" ref="EmployeeForm" @submit.prevent="employeeAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    :to="actions.slug"
+                    to="/employee"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -67,20 +67,21 @@
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center" class="full">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels accordion
+                  v-model="panel">
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>User Access Permission</v-expansion-panel-header>
                       <v-expansion-panel-content :eager="true">
                           <div
-                            v-for="item in adminMenu"
+                            v-for="item in e.adminMenu"
                             :key="item.id"
                           >
                             <v-checkbox
                               hide-details
                               name="permission[]"
                               :value="item.id"
-                              v-model="selectedAdminMenu"
+                              v-model="e.selected_admin_menu"
                               :label="item.name"
                             ></v-checkbox>
                           </div>
@@ -104,20 +105,15 @@ export default {
     return this.$axiosx.get(url)
     .then((res) => {
       this.e = res.data.employee;
-      this.actions = res.data.actions;
-      this.adminMenu = res.data.adminMenu;
-      this.selectedAdminMenu = res.data.selected_admin_menu;
     });
   },
   data () {
     return {
       e: [],
-      actions: [],
-      adminMenu: [],
-      selectedAdminMenu: [],
       validateRules: [
         v => !!v || 'This field is required'
       ],
+      panel: 0,
       emailRules: [
         v => !!v || 'E-mail is required',
         v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
@@ -130,7 +126,21 @@ export default {
     }
   },
   methods: {
+      getHeading () {
+          if (this.ad && this.ad.name) {
+                return 'Employee: ' + this.ad.name;
+          }
+
+          return 'Add Employee';
+      },
     employeeAdd () {
+        if (this.$refs.EmployeeForm.validate() == false) {
+            this.$store.commit('snackbar', {
+              status: 'error',
+              text: 'Please supply mandatory fields.'
+            });
+            return true;
+        }
       var fd = new FormData(this.$refs.EmployeeForm.$el);
 
       if (!this.$router.history.current.params && !this.$router.history.current.params.id) {
@@ -178,9 +188,6 @@ export default {
           return this.$axiosx.get(url)
           .then((res) => {
               this.e = res.data.employee;
-              this.actions = res.data.actions;
-              this.adminMenu = res.data.adminMenu;
-              this.selectedAdminMenu = res.data.selected_admin_menu;
           });
         }
     }
