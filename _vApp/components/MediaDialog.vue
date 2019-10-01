@@ -170,8 +170,10 @@ export default {
             if (media) {
                 var selected = this.selected;
                 for (var key in selected) {
-                    if (media.id == selected[key]['id']) {
-                        return 'selected';
+                    if (selected && selected[key]) {                        
+                        if (media.id == selected[key]['id']) {
+                            return 'selected';
+                        }
                     }
                 }
             }

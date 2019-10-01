@@ -2,7 +2,7 @@
     <div>
         <v-form id="dealerAdd" ref="dealerAdd" @submit.prevent="dAdd" autocomplete="nope">
             <Header
-              heading="Dealer"
+                :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    to="/dealer/list"
+                    to="/dealers"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -72,7 +72,7 @@
                     </v-flex>
                     <v-flex col md6 sm6 xs12>
                       <v-text-field
-                        v-model="address.street"
+                        v-model="dealer.street"
                         label="Street"
                         type="text"
                         name="street"
@@ -82,7 +82,7 @@
                     </v-flex>
                     <v-flex col md6 sm6 xs12>
                       <v-text-field
-                        v-model="address.city"
+                        v-model="dealer.city"
                         label="City"
                         type="text"
                         name="city"
@@ -92,7 +92,7 @@
                     </v-flex>
                     <v-flex col md6 sm6 xs12>
                       <v-select
-                        :items="states"
+                        :items="dealer.states"
                         item-text="name"
                         item-value="id"
                         v-model="dealer.id_state"
@@ -103,7 +103,7 @@
                     </v-flex>
                     <v-flex col md6 sm6 xs12>
                       <v-text-field
-                        v-model="address.zip"
+                        v-model="dealer.zip"
                         label="Zip"
                         type="tel"
                         name="zip"
@@ -157,20 +157,22 @@
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels
+                  v-model="panel"
+                  accordion>
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Manufacturers</v-expansion-panel-header>
                       <v-expansion-panel-content>
                         <div
-                          v-for="item in manufacturers"
+                          v-for="item in dealer.manufacturers"
                           :key="item.id"
                         >
                           <v-checkbox
                             hide-details
                             name="manufacturers[]"
                             :value="item.id"
-                            v-model="selectedManufacturers"
+                            v-model="dealer.selectedManufacturers"
                             :label="item.name"
                           ></v-checkbox>
                         </div>
@@ -183,9 +185,10 @@
                           <File
                               block
                               cls="_block"
-                              text="Choose Image"
+                              text="Choose Video"
                               name="id_hero_video"
                               type="Video"
+                              :value="dealer.video"
                               :multiple="false"
                           ></File>
                       </v-expansion-panel-content>
@@ -199,6 +202,7 @@
                             cls="_block"
                             text="Choose Image"
                             name="id_profile_image"
+                            :value="dealer.profile_image"
                             :multiple="false"
                         ></File>
                       </v-expansion-panel-content>
@@ -210,6 +214,7 @@
                           <File
                               block
                               cls="_block"
+                              :value="dealer.hero_image"
                               text="Choose Image"
                               name="id_hero_image"
                               :multiple="false"
@@ -236,8 +241,7 @@
 </template>
 <script>
 import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
+
   export default {
     beforeCreate() {
       var url = '/dealer/add';
@@ -246,7 +250,7 @@ Vue.component('LeftColumn', LeftColumn)
       }
       return this.$axiosx.get(url)
       .then((res) => {
-          this.dealers = res.data.dealers;
+          this.dealer = res.data.dealer;
           if (this.dealer.free_membership) {
             this.dealer.free_membership == true;
           }
@@ -254,13 +258,6 @@ Vue.component('LeftColumn', LeftColumn)
           if (this.dealer.preferred) {
             this.dealer.preferred == true;
           }
-
-          this.selectedManufacturers = res.data.selectedManufacturers;
-          this.manufacturers = res.data.manufacturers;
-          this.dealer = res.data.dealer;
-          this.address = res.data.add;
-          this.states = res.data.states;
-
       });
     },
     data () {
@@ -282,6 +279,7 @@ Vue.component('LeftColumn', LeftColumn)
         validateRules: [
           v => !!v || 'This field is required'
         ],
+        panel: 0,
         items: [],
         emailRules: [
           v => !!v || 'E-mail is required',
@@ -289,9 +287,37 @@ Vue.component('LeftColumn', LeftColumn)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+        getHeading () {
+            if (this.dealer && this.dealer.name) {
+                  return 'Dealer: ' + this.dealer.name;
+            }
+
+            return 'Add Dealer';
+        },
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/dealer/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.dealer = res.data.dealer;
+                  if (this.dealer.free_membership) {
+                    this.dealer.free_membership == true;
+                  }
+
+                  if (this.dealer.preferred) {
+                    this.dealer.preferred == true;
+                  }
+              });
+          }
+      },
       dAdd () {
-        if (this.$refs.manufacturerAdd.validate() == false) {
+        if (this.$refs.dealerAdd.validate() == false) {
             this.$store.commit('snackbar', {
               status: 'error',
               text: 'Please supply mandatory fields.'
@@ -316,7 +342,7 @@ Vue.component('LeftColumn', LeftColumn)
               query: { added: 'true' }
             });
             this.dialog = false;
-            this.addedManufacturer();
+            this.added();
           }
           if (res.data.status == 'success') {
               this.$store.commit('snackbar', res.data);
@@ -324,10 +350,7 @@ Vue.component('LeftColumn', LeftColumn)
           }
         });
       },
-      saveManufacturer () {
-        this.$refs.dealerAdd.submit();
-      },
-      addedManufacturer() {
+      added() {
         if (this.$router.history.current.query.added == 'true') {
           this.$store.commit('snackbar', {
             status: 'success',

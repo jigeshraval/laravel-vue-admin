@@ -2,7 +2,7 @@
     <div>
         <v-form id="equipmentTypeAdd" ref="equipmentTypeAdd" @submit.prevent="etAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    :to="actions.slug"
+                    to="/equipment/type/list"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -33,7 +33,7 @@
                    <v-tab>Information</v-tab>
                    <v-tab>SEO</v-tab>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item :eager="true" class="pa-5">
                      <v-text-field
                        v-model="et.name"
                        label="Name*"
@@ -53,27 +53,27 @@
                        autocomplete="nope"
                      ></v-text-field>
 
-                     <v-textarea
-                       label="Description"
-                       auto-grow
-                       name="description"
-                       outlined
-                       v-model="et.description"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         name="description"
+                         label="Description"
+                         :value="et.description"
+                     ></Textarea>
 
-                     <v-textarea
-                       label="Accordion"
-                       auto-grow
-                       name="seo_content"
-                       outlined
-                       v-model="et.seo_content"
-                     ></v-textarea>
+                     <Textarea
+                         autocomplete="nope"
+                         outlined
+                         name="seo_content"
+                         label="Accordion"
+                         :value="et.description"
+                     ></Textarea>
 
                    </v-tab-item>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item :eager="true" class="pa-5">
                      <SEO
-                     :seo="et"
+                        :seo="et"
                      >
                      </SEO>
                    </v-tab-item>
@@ -83,20 +83,22 @@
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center" class="full">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels
+                  accordion
+                  v-model="panel">
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Tie Options</v-expansion-panel-header>
-                      <v-expansion-panel-content  :eager="true">
+                      <v-expansion-panel-content :eager="true">
                         <div
-                          v-for="item in options"
+                          v-for="item in et.options"
                           :key="item.id"
                         >
                           <v-checkbox
                             hide-details
                             name="tie_options[]"
                             :value="item.id"
-                            v-model="selectedOptions"
+                            v-model="et.selectedOptions"
                             :label="item.name"
                           ></v-checkbox>
                         </div>
@@ -111,8 +113,6 @@
 </template>
 <script>
 import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
 
 import Seo from '../components/SEO.vue'
 Vue.component('SEO', Seo)
@@ -124,19 +124,13 @@ Vue.component('SEO', Seo)
       }
       return this.$axiosx.get(url)
       .then((res) => {
-        console.log(res.data);
         this.et = res.data.equipmentType;
-        this.actions = res.data.actions;
-        this.options = res.data.options;
-        this.selectedOptions = res.data.selectedOptions;
       });
     },
     data () {
       return {
         et: [],
-        options: [],
-        actions: [],
-        selectedOptions: [],
+        panel: 0,
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -146,8 +140,35 @@ Vue.component('SEO', Seo)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+        getData () {
+          if (this.$route.params && this.$route.params.id) {
+                var url = '/equipment/type/edit/' + this.$route.params.id;
+                return this.$axiosx.get(url)
+                .then((res) => {
+                    this.et = res.data.equipmentType;
+                });
+            }
+        },
+        getHeading() {
+            if (this.et && this.et.name) {
+                return 'Type: ' + this.et.name;
+            }
+            return 'Add Type';
+        },
       etAdd () {
+        if (this.$refs.equipmentTypeAdd.validate() == false) {
+          this.$store.commit('snackbar', {
+            status: 'error',
+            text: 'Please supply mandatory fields.'
+          });
+          return true;
+        }
         var fd = new FormData(this.$refs.equipmentTypeAdd.$el);
         this.dialog = true;
         var url = '/equipment/type/add';

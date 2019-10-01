@@ -83,6 +83,13 @@ export default {
   },
   methods: {
     mhAdd () {
+        if (this.$refs.MenuHeadingForm.validate() == false) {
+            this.$store.commit('snackbar', {
+              status: 'error',
+              text: 'Please supply mandatory fields.'
+            });
+            return true;
+        }
       var fd = new FormData(this.$refs.MenuHeadingForm.$el);
       this.dialog = true;
       var url = '/admin/menu/headings/add';

@@ -1,10 +1,10 @@
 <template>
     <div>
         <Header
-          heading="Post"
+          heading="Trusted Customers"
         >
             <v-btn
-                to="/post/add"
+                to="/trusted/customers/add"
                 color="info"
             >
                 <v-icon left>mdi-view-list</v-icon>
@@ -12,9 +12,9 @@
             </v-btn>
         </Header>
         <Listing
-            endpoint="/post"
-            slug="/post"
-            component="post"
+            endpoint="/trusted/customers"
+            slug="/trusted/customers"
+            component="trusted_customers"
         >
         </Listing>
     </div>
@@ -25,9 +25,12 @@ export default {
     data () {
         return {
             obj: [],
-            slug: '/post',
             totalPage: null
         }
-    }
+    },
+    beforeCreate () {
+
+    },
+
 }
 </script>

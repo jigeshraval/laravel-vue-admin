@@ -1,10 +1,10 @@
 <template>
     <div>
         <Header
-          heading="Post"
+          heading="Manufacturers"
         >
             <v-btn
-                to="/post/add"
+                to="/manufacturer/add"
                 color="info"
             >
                 <v-icon left>mdi-view-list</v-icon>
@@ -12,9 +12,9 @@
             </v-btn>
         </Header>
         <Listing
-            endpoint="/post"
-            slug="/post"
-            component="post"
+            endpoint="/manufacturers"
+            :slug="slug"
+            component="manufacturers"
         >
         </Listing>
     </div>
@@ -25,9 +25,13 @@ export default {
     data () {
         return {
             obj: [],
-            slug: '/post',
+            slug: '/manufacturer',
             totalPage: null
         }
-    }
+    },
+    beforeCreate () {
+
+    },
+
 }
 </script>

@@ -2,8 +2,18 @@
     <div>
         <v-form id="postCategory" ref="postCategory" @submit.prevent="postCategory" autocomplete="nope">
             <Header
-              heading="Post Category"
+              :heading="getHeading()"
             >
+            <v-switch
+                hide-details
+                class="mr-8"
+                v-model="post_category.status"
+                inset
+                name="status"
+                label="Status"
+                color="success"
+                :value="post_category.status"
+            ></v-switch>
               <v-btn
                   min-width="130px"
                   color="success"
@@ -15,7 +25,7 @@
                   Save
               </v-btn>
               <v-btn
-                  to="/post/category/list"
+                  to="/post/category"
                   color="info"
               >
                   <v-icon left>mdi-view-list</v-icon>
@@ -30,7 +40,7 @@
                  >
                  <v-tab>Information</v-tab>
                  <v-tab>SEO</v-tab>
-                 <v-tab-item class="pa-5">
+                 <v-tab-item class="pa-5" :eager="true">
                    <v-text-field
                      v-model="post_category.name"
                      label="Name*"
@@ -50,20 +60,11 @@
                      autocomplete="nope"
                    ></v-text-field>
 
-                  <v-switch
-                    v-model="post_category.status"
-                    inset
-                    name="status"
-                    label="Status"
-                    color="success"
-                    :value="post_category.status"
-                  ></v-switch>
-
                  </v-tab-item>
 
-              <v-tab-item class="pa-5">
+              <v-tab-item :eager="true" class="pa-5">
                 <SEO
-                :seo="post_category"
+                    :seo="post_category"
                 >
                 </SEO>
               </v-tab-item>
@@ -106,8 +107,36 @@ Vue.component('SEO', Seo)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/post/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.plans = res.data.plans;
+              });
+          }
+      },
+      getHeading () {
+          if (this.post && this.post.name) {
+                return 'Post Category: ' + this.post.name;
+          }
+
+          return 'Add Category';
+      },
       postCategory () {
+        if (this.$refs.postCategory.validate() == false) {
+            this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+            });
+            return true;
+        }
         var fd = new FormData(this.$refs.postCategory.$el);
         this.dialog = true;
         var url = '/post/category/add';
@@ -124,17 +153,14 @@ Vue.component('SEO', Seo)
               path: res.data.text,
               query: { added: 'true' }
             });
-            this.addedManufacturer();
+            this.added();
           }
           if (res.data.status == 'success') {
               this.$store.commit('snackbar', res.data);
           }
         });
       },
-      saveManufacturer () {
-        this.$refs.postCategory.submit();
-      },
-      addedManufacturer() {
+      added() {
         if (this.$router.history.current.query.added == 'true') {
           this.$store.commit('snackbar', {
             status: 'success',

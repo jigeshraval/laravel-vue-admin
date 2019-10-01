@@ -2,7 +2,7 @@
     <div>
         <v-form id="postAdd" ref="postAdd" @submit.prevent="postAdd" autocomplete="nope">
             <Header
-              heading="Post"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    to="/post/list"
+                    to="/post"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -33,7 +33,7 @@
                   >
                     <v-tab>Information</v-tab>
                     <v-tab>SEO</v-tab>
-                    <v-tab-item class="pa-5">
+                    <v-tab-item class="pa-5" :eager="true">
                       <div class="full">
                         <v-text-field
                           v-model="post.title"
@@ -54,13 +54,13 @@
                           autocomplete="nope"
                         ></v-text-field>
 
-                        <v-textarea
-                          auto-grow
-                          outlined
-                          name="content"
-                          label="Content"
-                          v-model="post.content"
-                        ></v-textarea>
+                        <Textarea
+                            autocomplete="nope"
+                            outlined
+                            name="content"
+                            label="Content"
+                            :value="post.content"
+                        ></Textarea>
 
                         <div class="flex align-center">
                           <v-switch
@@ -85,9 +85,9 @@
                       </div>
                     </v-tab-item>
 
-                   <v-tab-item class="pa-5">
+                   <v-tab-item class="pa-5" :eager="true">
                      <SEO
-                     :seo="post"
+                        :seo="post"
                      >
                      </SEO>
                    </v-tab-item>
@@ -99,17 +99,19 @@
 
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels
+                  accordion
+                  v-model="panel">
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Equipment</v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content :eager="true">
                         <v-radio-group v-model="post.id_equipment" :mandatory="false">
                           <v-radio
                             :label="item.title"
                             :value="item.id"
                             name="id_equipment"
-                            v-for="item in equipment"
+                            v-for="item in post.equipment"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
@@ -118,13 +120,13 @@
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Dealers</v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content :eager="true">
                         <v-radio-group v-model="post.id_dealer" :mandatory="false">
                           <v-radio
                             :label="item.name"
                             :value="item.id"
                             name="id_dealer"
-                            v-for="item in dealers"
+                            v-for="item in post.dealers"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
@@ -133,16 +135,16 @@
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Post Category</v-expansion-panel-header>
-                      <v-expansion-panel-content>
+                      <v-expansion-panel-content :eager="true">
                         <div
-                          v-for="item in postCategory"
+                          v-for="item in post.postCategory"
                           :key="item.id"
                         >
                           <v-checkbox
                             hide-details
                             name="postCategory[]"
                             :value="item.id"
-                            v-model="selectedPostCategory"
+                            v-model="post.selectedPostCategory"
                             :label="item.name"
                           ></v-checkbox>
                         </div>
@@ -150,9 +152,16 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel>
-                      <v-expansion-panel-header>Hero Media</v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        Hero Media
+                      <v-expansion-panel-header>Media</v-expansion-panel-header>
+                      <v-expansion-panel-content :eager="true">
+                          <File
+                              block
+                              cls="_block"
+                              :value="post.media"
+                              text="Choose Image"
+                              name="id_media"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
 
@@ -175,9 +184,6 @@
     </div>
 </template>
 <script>
-import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
   export default {
     beforeCreate() {
       var url = '/post/add';
@@ -186,12 +192,7 @@ Vue.component('LeftColumn', LeftColumn)
       }
       return this.$axiosx.get(url)
       .then((res) => {
-          this.dealers = res.data.dealers;
           this.post = res.data.post;
-          this.equipment = res.data.equipment;
-          this.postCategory = res.data.postCategory;
-          this.selectedPostCategory = res.data.selectedPostCategory;
-
           if (this.post.display_home) {
             this.post.display_home == true;
           }
@@ -205,10 +206,7 @@ Vue.component('LeftColumn', LeftColumn)
     data () {
       return {
         post: [],
-        postCategory: [],
-        dealers: [],
-        equipment: [],
-        selectedPostCategory: [],
+        panel:0,
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -219,8 +217,36 @@ Vue.component('LeftColumn', LeftColumn)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/post/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.plans = res.data.plans;
+              });
+          }
+      },
+      getHeading () {
+          if (this.post && this.post.title) {
+                return 'Post: ' + this.post.title;
+          }
+
+          return 'Add Post';
+      },
       postAdd () {
+        if (this.$refs.postAdd.validate() == false) {
+                this.$store.commit('snackbar', {
+                  status: 'error',
+                  text: 'Please supply mandatory fields.'
+                });
+                return true;
+        }
         var fd = new FormData(this.$refs.postAdd.$el);
         this.dialog = true;
         var url = '/post/add';

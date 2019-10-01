@@ -2,8 +2,18 @@
     <div>
         <v-form id="partnersAdd" ref="partnersAdd" @submit.prevent="partnersAdd" autocomplete="nope">
             <Header
-              heading="Partners"
+              :heading="getHeading()"
             >
+                <v-switch
+                    hide-details
+                    class="mr-8"
+                  v-model="partners.status"
+                  inset
+                  color="success"
+                  name="status"
+                  :value="partners.status"
+                  label="Status"
+                ></v-switch>
               <v-btn
                   min-width="130px"
                   color="success"
@@ -15,7 +25,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    to="/completed/projects/list"
+                    to="/partners"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -44,32 +54,32 @@
                      autocomplete="nope"
                    ></v-text-field>
 
-                   <v-textarea
-                     label="About"
-                     auto-grow
-                     name="about"
-                     outlined
-                     v-model="partners.about"
-                   ></v-textarea>
-
-                   <v-switch
-                     v-model="partners.status"
-                     inset
-                     color="success"
-                     name="status"
-                     :value="partners.status"
-                     label="Status"
-                   ></v-switch>
+                   <Textarea
+                       autocomplete="nope"
+                       outlined
+                       name="about"
+                       label="About"
+                       :value="partners.about"
+                   ></Textarea>
                </v-card>
 
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center" class="full">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels
+                  accordion
+                  v-model="panel">
                     <v-expansion-panel>
                       <v-expansion-panel-header>Logo</v-expansion-panel-header>
                       <v-expansion-panel-content>
-                        Logo
+                          <File
+                              block
+                              cls="_block"
+                              :value="partners.logo"
+                              text="Choose Image"
+                              name="id_logo"
+                              :multiple="false"
+                          ></File>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                   </v-expansion-panels>
@@ -81,8 +91,6 @@
 </template>
 <script>
 import Vue from 'vue'
-import LeftColumn from '../../components/LeftColumn.vue'
-Vue.component('LeftColumn', LeftColumn)
 
 import Seo from '../components/SEO.vue'
 Vue.component('SEO', Seo)
@@ -107,6 +115,7 @@ Vue.component('SEO', Seo)
     data () {
       return {
         partners: [],
+        panel: 0,
         validateRules: [
           v => !!v || 'This field is required'
         ],
@@ -116,8 +125,42 @@ Vue.component('SEO', Seo)
         ]
       }
     },
+    watch : {
+      '$route.query.added' : function (val) {
+          this.getData();
+      }
+    },
     methods: {
+      getData () {
+        if (this.$route.params && this.$route.params.id) {
+              var url = '/partners/edit/' + this.$route.params.id;
+              return this.$axiosx.get(url)
+              .then((res) => {
+                  this.partners = res.data.partners;
+
+                  if (this.partners.status == 1) {
+                    this.partners.status == true;
+                  } else {
+                    this.partners.status == false;
+                  }
+              });
+          }
+      },
+      getHeading () {
+          if (this.partners && this.partners.name) {
+                return 'Partners: ' + this.partners.name;
+          }
+
+          return 'Add partners';
+      },
       partnersAdd () {
+          if (this.$refs.partnersAdd.validate() == false) {
+              this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+              });
+              return true;
+          }
         var fd = new FormData(this.$refs.partnersAdd.$el);
         this.dialog = true;
         var url = '/partners/add';

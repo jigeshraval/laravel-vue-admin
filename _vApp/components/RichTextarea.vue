@@ -2,7 +2,8 @@
     <div class="mb-5 mt-5">
         <div class="v-label theme--light mb-3" v-text="label"></div>
         <textarea
-            id="editor"
+            :id="name"
+            class="editor"
             :name="name"
             v-html="value"
         >
@@ -28,12 +29,12 @@ export default {
     watch: {
         value (val) {
             if (val) {
-                $('#editor').summernote('code', val);
+                $('#' + this.name).summernote('code', val);
             }
         }
     },
     mounted () {
-        $('#editor').summernote({
+        $('#' + this.name).summernote({
             tooltip: false,
             height: 'auto',
             minHeight: '200px',

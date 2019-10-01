@@ -2,7 +2,7 @@
     <div>
         <v-form id="EmailsForm" ref="EmailsForm" @submit.prevent="emailsAdd" autocomplete="nope">
             <Header
-              :heading="actions.heading"
+              :heading="getHeading()"
             >
               <v-btn
                   min-width="130px"
@@ -15,7 +15,7 @@
                   Save
               </v-btn>
                 <v-btn
-                    :to="actions.slug"
+                    to="/emails"
                     color="info"
                 >
                     <v-icon left>mdi-view-list</v-icon>
@@ -43,29 +43,31 @@
                       autocomplete="nope"
                     ></v-text-field>
 
-                    <v-textarea
-                      label="Content*"
-                      required
-                      :rules="validateRules"
-                      auto-grow
-                      name="content"
-                      outlined
-                      v-model="emails.content"
-                    ></v-textarea>
+                    <Textarea
+                        autocomplete="nope"
+                        outlined
+                        name="content"
+                        label="Content*"
+                        :value="emails.content"
+                        :rules="validateRules"
+                    ></Textarea>
 
-                    <v-textarea
-                      label="SMS"
-                      auto-grow
-                      name="sms"
-                      outlined
-                      v-model="emails.sms"
-                    ></v-textarea>
+                    <Textarea
+                        autocomplete="nope"
+                        outlined
+                        name="sms"
+                        label="sms"
+                        :value="emails.sms"
+                    ></Textarea>
+
                </v-card>
 
               </v-flex>
               <v-flex class="col sm12 xs12 md3 xl3">
                 <div justify="center" class="full">
-                  <v-expansion-panels accordion>
+                  <v-expansion-panels
+                  accordion
+                  v-model="panel">
 
                     <v-expansion-panel class="_collapse">
                       <v-expansion-panel-header>Components</v-expansion-panel-header>
@@ -75,7 +77,7 @@
                             :label="item.name"
                             :value="item.id"
                             name="id_component"
-                            v-for="item in components"
+                            v-for="item in emails.component"
                             :key="item.id"
                           ></v-radio>
                         </v-radio-group>
@@ -99,15 +101,12 @@ export default {
     return this.$axiosx.get(url)
     .then((res) => {
       this.emails = res.data.emails;
-      this.actions = res.data.actions;
-      this.components = res.data.components;
     });
   },
   data () {
     return {
       emails: [],
-      actions: [],
-      components: [],
+      panel: 0,
       validateRules: [
         v => !!v || 'This field is required'
       ],
@@ -123,7 +122,21 @@ export default {
     }
   },
   methods: {
+      getHeading() {
+          if (this.emails && this.emails.subject) {
+              return 'Email: ' + this.emails.subject;
+          }
+
+          return 'Add Email';
+      },
     emailsAdd () {
+        if (this.$refs.EmailsForm.validate() == false) {
+            this.$store.commit('snackbar', {
+                status: 'error',
+                text: 'Please supply mandatory fields.'
+            });
+            return true;
+        }
       var fd = new FormData(this.$refs.EmailsForm.$el);
 
       if (this.$refs.EmailsForm.validate() == false) {
@@ -169,8 +182,6 @@ export default {
           return this.$axiosx.get(url)
           .then((res) => {
               this.emails = res.data.emails;
-              this.actions = res.data.actions;
-              this.components = res.data.components;
           });
         }
     }

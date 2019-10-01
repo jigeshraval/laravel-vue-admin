@@ -26,7 +26,7 @@ import Vue from 'vue'
 import VuetifyGoogleAutocomplete from 'vuetify-google-autocomplete'
 
 Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: 'apiKey'
+  apiKey: 'apikey'
 });
 
 export default {
@@ -65,13 +65,16 @@ export default {
     },
     watch: {
         'value' : function (val) {
-            this.location = val.location;
-            this.street1 = val.street;
-            this.city = val.city;
-            this.state = val.state;
-            this.zip = val.zip;
-            this.lat = val.lat;
-            this.lng = val.lng;
+            if (val) {
+                console.log(val);
+                this.location = val.location;
+                this.street1 = val.street;
+                this.city = val.city;
+                this.state = val.state;
+                this.zip = val.zip;
+                this.lat = val.lat;
+                this.lng = val.lng;
+            }
         }
     },
     methods: {
