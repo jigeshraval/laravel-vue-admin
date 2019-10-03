@@ -1,10 +1,10 @@
 <template>
     <div>
         <Header
-          heading="Admin Child Menu"
+          heading="Equipment"
         >
             <v-btn
-                to="/admin/menu/child/add"
+                to="/equipment/add"
                 color="info"
             >
                 <v-icon left>mdi-view-list</v-icon>
@@ -12,9 +12,9 @@
             </v-btn>
         </Header>
         <Listing
-            endpoint="/admin/menu/child"
-            slug="/admin/menu/child"
-            component="admin_menu_child"
+            endpoint="/equipment"
+            slug="/equipment"
+            component="equipment"
         >
         </Listing>
     </div>
@@ -25,7 +25,6 @@ export default {
     data () {
         return {
             obj: [],
-            slug: '',
             totalPage: null
         }
     },

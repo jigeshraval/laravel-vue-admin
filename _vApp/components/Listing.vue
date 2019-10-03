@@ -1,7 +1,6 @@
 <template>
     <div>
         <v-card>
-
             <v-simple-table
                fixed-header
                v-if="obj"
@@ -32,7 +31,7 @@
                                v-model="key.search"
                                :placeholder="key.text"
                                autocomplete="nope"
-                               @input="filter(i, key.search)"
+                               @input="filter(i, key.search, key)"
                            >
                            </v-text-field>
                        </td>
@@ -41,7 +40,7 @@
                    </tr>
                    <tr v-for="(d, i) in obj.data" :key="i">
                        <td v-for="(key, index) in keys" :key="index">
-                           <div v-if="key.switch">
+                           <div v-if="key.switch" class="_filter">
                                <v-switch
                                    v-model="d[index]"
                                    inset
@@ -49,7 +48,7 @@
                                    @change="changeSwitch(index, d[index], d['id'])"
                                ></v-switch>
                            </div>
-                           <div v-else>
+                           <div v-else class="_filter">
                                {{ d[index] }}
                            </div>
                        </td>
@@ -249,7 +248,12 @@ export default {
                 }
             });
         },
-        filter (key, val) {
+        filter (key, val, obj) {
+
+            if (obj.filter_key) {
+                var key = obj.filter_key;
+            }
+
             this.filterColumns(key, val);
         },
     },

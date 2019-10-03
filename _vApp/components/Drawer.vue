@@ -64,6 +64,9 @@ export default {
         { icon: 'mdi-bell-ring', text: 'Push Notification', link: '/push/notification' },
         { icon: 'mdi-email-outline', text: 'Emails', link: '/emails' },
         { icon: 'mdi-account-circle-outline', text: 'Employee', link: '/employee' },
+        { icon: 'mdi-format-header-pound', text: 'Menu Headings', link: '/admin/menu/headings' },
+        { icon: 'mdi-menu-open', text: 'Menu', link: '/admin/menu' },
+        { icon: 'mdi-backburger', text: 'Menu Child', link: '/admin/menu/child' },
       ]
     }
   }

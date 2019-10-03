@@ -34,86 +34,102 @@
             </Header>
           <v-layout class="row wrap">
             <v-flex class="col sm9 xs12 md9 xl9">
-              <v-card class="pa-5 full">
-                <v-text-field
-                    v-model="manufacturer.name"
-                    label="Name*"
-                    name="name"
-                    required
-                    :rules="validateRules"
-                    persistent-hint
-                    autocomplete="nope"
-                ></v-text-field>
-                <v-text-field
-                    v-model="manufacturer.url"
-                    label="URL*"
-                    name="url"
-                    required
-                    :rules="validateRules"
-                    autocomplete="nope"
-                ></v-text-field>
-                <v-text-field
-                    v-model="manufacturer.email"
-                    label="Email"
-                    type="email"
-                    name="email"
-                    autocomplete="nope"
-                ></v-text-field>
-                <Geo
-                    label="Location"
-                    id="location"
-                    :value="manufacturer"
-                >
-                </Geo>
-                <v-text-field
-                    v-model="manufacturer.phone"
-                    label="Phone"
-                    length="15"
-                    maxlength="15"
-                    type="tel"
-                    name="phone"
-                    persistent-hint
-                    autocomplete="nope"
-                ></v-text-field>
-                <v-text-field
-                    v-model="manufacturer.website"
-                    label="Website"
-                    type="url"
-                    name="website"
-                    persistent-hint
-                    autocomplete="nope"
-                ></v-text-field>
-                <Textarea
-                    autocomplete="nope"
-                    outlined
-                    name="about"
-                    label="About"
-                    :value="manufacturer.about"
-                ></Textarea>
+              <v-card class="full">
+                  <v-tabs
+                    background-color="white"
+                    color="info accent-4"
+                    left
+                  >
+                    <v-tab>Information</v-tab>
+                    <v-tab>SEO</v-tab>
 
-                <v-divider></v-divider>
-                <div class="flex mt-3">
-                    <v-switch
-                        v-model="manufacturer.preferred"
-                        inset
-                        class="mr-5"
-                        color="success"
-                        :value="manufacturer.preferred"
-                        label="Preferred Manufacturer"
-                        name="preferred"
-                    ></v-switch>
+                    <v-tab-item :eager="true" class="pa-5">
+                        <v-text-field
+                            v-model="manufacturer.name"
+                            label="Name*"
+                            name="name"
+                            required
+                            :rules="validateRules"
+                            persistent-hint
+                            autocomplete="nope"
+                        ></v-text-field>
+                        <v-text-field
+                            v-model="manufacturer.url"
+                            label="URL*"
+                            name="url"
+                            required
+                            :rules="validateRules"
+                            autocomplete="nope"
+                        ></v-text-field>
+                        <v-text-field
+                            v-model="manufacturer.email"
+                            label="Email"
+                            type="email"
+                            name="email"
+                            autocomplete="nope"
+                        ></v-text-field>
+                        <Geo
+                            label="Location"
+                            id="location"
+                            :value="manufacturer"
+                        >
+                        </Geo>
+                        <v-text-field
+                            v-model="manufacturer.phone"
+                            label="Phone"
+                            length="15"
+                            maxlength="15"
+                            type="tel"
+                            name="phone"
+                            persistent-hint
+                            autocomplete="nope"
+                        ></v-text-field>
+                        <v-text-field
+                            v-model="manufacturer.website"
+                            label="Website"
+                            type="url"
+                            name="website"
+                            persistent-hint
+                            autocomplete="nope"
+                        ></v-text-field>
+                        <Textarea
+                            autocomplete="nope"
+                            outlined
+                            name="about"
+                            label="About"
+                            :value="manufacturer.about"
+                        ></Textarea>
 
-                    <v-switch
-                        v-model="manufacturer.out_of_business"
-                        inset
-                        color="success"
-                        :value="manufacturer.out_of_business"
-                        label="Out of business"
-                        name="out_of_business"
-                    ></v-switch>
-                </div>
+                        <v-divider></v-divider>
+                        <div class="flex mt-3">
+                            <v-switch
+                                v-model="manufacturer.preferred"
+                                inset
+                                class="mr-5"
+                                color="success"
+                                :value="manufacturer.preferred"
+                                label="Preferred Manufacturer"
+                                name="preferred"
+                            ></v-switch>
 
+                            <v-switch
+                                v-model="manufacturer.out_of_business"
+                                inset
+                                color="success"
+                                :value="manufacturer.out_of_business"
+                                label="Out of business"
+                                name="out_of_business"
+                            ></v-switch>
+                        </div>
+                    </v-tab-item>
 
+                    <v-tab-item class="pa-5" :eager="true">
+                      <SEO
+                         :seo="manufacturer"
+                      >
+                      </SEO>
+                    </v-tab-item>
+                  </v-tabs>
 
               </v-card>
             </v-flex>

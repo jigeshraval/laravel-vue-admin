@@ -55,10 +55,9 @@
 
                       <v-text-field
                         v-model="ec.buyers_guide"
-                        label="Buyers Guide*"
+                        label="Buyers Guide"
                         name="buyers_guide"
                         type="url"
-                        :rules="validateRules"
                         autocomplete="nope"
                       ></v-text-field>
 
