@@ -26,7 +26,7 @@ import Vue from 'vue'
 import VuetifyGoogleAutocomplete from 'vuetify-google-autocomplete'
 
 Vue.use(VuetifyGoogleAutocomplete, {
-  apiKey: 'apikey'
+  apiKey: ''
 });
 
 export default {
@@ -80,6 +80,7 @@ export default {
     methods: {
         getAddressData (addressData, placeResultData, id) {
             if (addressData) {
+
                 // this.location = placeResultData.formatted_address;
                 this.street1 = addressData.name;
                 this.city = addressData.locality;
@@ -87,6 +88,9 @@ export default {
                 this.zip = addressData.postal_code;
                 this.lat = addressData.latitude;
                 this.lng = addressData.longitude;
+                addressData.location = this.location;
+                this.$emit('geo', addressData);
+
             }
         }
     }

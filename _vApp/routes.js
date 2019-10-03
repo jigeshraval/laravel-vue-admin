@@ -57,6 +57,10 @@ import PlansAdd from './pages/plan/add.vue'
 import PlansEdit from './pages/plan/add.vue'
 import PlansList from './pages/plan/index.vue'
 
+import EquipmentAdd from './pages/equipment/add.vue'
+import EquipmentEdit from './pages/equipment/add.vue'
+import EquipmentList from './pages/equipment/index.vue'
+
 import EquipmentTypeAdd from './pages/equipmentType/add.vue'
 import EquipmentTypeEdit from './pages/equipmentType/add.vue'
 import EquipmentTypeList from './pages/equipmentType/index.vue'
@@ -100,6 +104,18 @@ import MenuChildList from './pages/adminMenuChild/index.vue'
 Vue.use(VueRouter)
 
 const routes = [
+    {
+      path: '/equipment/edit/:id',
+      component: EquipmentEdit
+    },
+    {
+        path: '/equipment',
+        component: EquipmentList
+    },
+    {
+      path: '/equipment/add',
+      component: EquipmentAdd
+    },
     {
       path: '/admin/menu/child/edit/:id',
       component: MenuChildEdit
